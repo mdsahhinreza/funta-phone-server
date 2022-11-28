@@ -22,6 +22,8 @@ console.log(uri);
 async function run() {
   try {
     const userCollection = client.db("funtaPhone").collection("users");
+    const productsCollection = client.db("funtaPhone").collection("products");
+    const bookingCollection = client.db("funtaPhone").collection("bookings");
     const categoriesCollection = client
       .db("funtaPhone")
       .collection("categories");
@@ -36,6 +38,19 @@ async function run() {
       const query = {};
       const categories = await categoriesCollection.find(query).toArray();
       res.send(categories);
+    });
+
+    app.get("/products/category/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { categoryId: id };
+      const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingCollection.insertOne(booking);
+      res.send(result);
     });
   } finally {
   }
