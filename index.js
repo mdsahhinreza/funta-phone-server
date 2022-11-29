@@ -17,7 +17,6 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-console.log(uri);
 
 async function run() {
   try {
@@ -40,10 +39,29 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/sellers", async (req, res) => {
+      const query = { userType: "seller" };
+      const result = await userCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.put("/user/admin/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          userType: "admin",
+        },
+      };
+      const result = await userCollection.updateOne(query, updateDoc, option);
       res.send(result);
     });
 
