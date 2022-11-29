@@ -34,7 +34,11 @@ async function run() {
     });
 
     app.get("/users", async (req, res) => {
-      const query = {};
+      const email = req.query.email;
+      let query = {};
+      if (email) {
+        query = { email: email };
+      }
       const result = await userCollection.find(query).toArray();
       res.send(result);
     });
@@ -65,15 +69,34 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/user/verify/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          isVerified: true,
+        },
+      };
+      const result = await userCollection.updateOne(query, updateDoc, option);
+      res.send(result);
+    });
+
     app.get("/categories", async (req, res) => {
       const query = {};
       const categories = await categoriesCollection.find(query).toArray();
       res.send(categories);
     });
 
+    app.post("/products", async (req, res) => {
+      const product = req.body;
+      const result = await productsCollection.insertOne(product);
+      res.send(result);
+    });
+
     app.get("/products/category/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { categoryId: id };
+      const query = { productCategory: id };
       const result = await productsCollection.find(query).toArray();
       res.send(result);
     });
