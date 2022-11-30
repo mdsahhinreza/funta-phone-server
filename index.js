@@ -11,6 +11,7 @@ app.use(express.json());
 
 // MongoDB
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { response } = require("express");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.epiqiul.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -117,6 +118,42 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/product/sold/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          isSold: true,
+        },
+      };
+      const result = await productsCollection.updateOne(
+        query,
+        updatedDoc,
+        option
+      );
+      res.send(result);
+    });
+
+    app.put("/product/ads/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          isAds: true,
+        },
+      };
+      const result = await productsCollection.updateOne(
+        query,
+        updatedDoc,
+        option
+      );
+      res.send(result);
+    });
+
     app.put("/report/product/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -142,7 +179,17 @@ async function run() {
 
     app.get("/products/category/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { productCategory: id };
+      let query = { isSold: false };
+      if (id !== "allProducts") {
+        query = { productCategory: id, isSold: false };
+      }
+      // console.log(id);
+      const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.get("/ads/products", async (req, res) => {
+      let query = { isAds: true, isSold: false };
       const result = await productsCollection.find(query).toArray();
       res.send(result);
     });
