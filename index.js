@@ -23,6 +23,7 @@ async function run() {
     const userCollection = client.db("funtaPhone").collection("users");
     const productsCollection = client.db("funtaPhone").collection("products");
     const bookingCollection = client.db("funtaPhone").collection("bookings");
+    const wishCollection = client.db("funtaPhone").collection("withItems");
     const categoriesCollection = client
       .db("funtaPhone")
       .collection("categories");
@@ -116,6 +117,23 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/report/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          reportedItem: true,
+        },
+      };
+      const result = await productsCollection.updateOne(
+        query,
+        updateDoc,
+        option
+      );
+      res.send(result);
+    });
+
     app.post("/products", async (req, res) => {
       const product = req.body;
       const result = await productsCollection.insertOne(product);
@@ -126,6 +144,12 @@ async function run() {
       const id = req.params.id;
       const query = { productCategory: id };
       const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/wish", async (req, res) => {
+      const wishItem = req.body;
+      const result = await wishCollection.insertOne(wishItem);
       res.send(result);
     });
 
