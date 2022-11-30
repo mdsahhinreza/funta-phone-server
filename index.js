@@ -23,7 +23,7 @@ async function run() {
     const userCollection = client.db("funtaPhone").collection("users");
     const productsCollection = client.db("funtaPhone").collection("products");
     const bookingCollection = client.db("funtaPhone").collection("bookings");
-    const wishCollection = client.db("funtaPhone").collection("withItems");
+    const wishCollection = client.db("funtaPhone").collection("wishItems");
     const categoriesCollection = client
       .db("funtaPhone")
       .collection("categories");
@@ -150,6 +150,13 @@ async function run() {
     app.post("/wish", async (req, res) => {
       const wishItem = req.body;
       const result = await wishCollection.insertOne(wishItem);
+      res.send(result);
+    });
+
+    app.get("/wish", async (req, res) => {
+      const email = req.query.email;
+      const query = { buyerEmail: email };
+      const result = await wishCollection.find(query).toArray();
       res.send(result);
     });
 
