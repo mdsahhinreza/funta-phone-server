@@ -29,25 +29,36 @@ async function run() {
 
     app.post("/users", async (req, res) => {
       const user = req.body;
+      const query = { email: user.email };
+      const hasData = await userCollection.find(query).toArray();
+      if (hasData[0]?.email) {
+        return res.send({ status: "Already Has Data" });
+      }
       const result = await userCollection.insertOne(user);
       res.send(result);
     });
 
     app.get("/users", async (req, res) => {
       const email = req.query.email;
+      const type = req.query.userType;
       let query = {};
       if (email) {
         query = { email: email };
       }
+
+      if (type) {
+        query = { userType: type };
+      }
+
       const result = await userCollection.find(query).toArray();
       res.send(result);
     });
 
-    app.get("/sellers", async (req, res) => {
-      const query = { userType: "seller" };
-      const result = await userCollection.find(query).toArray();
-      res.send(result);
-    });
+    // app.get("/sellers", async (req, res) => {
+    //   const query = { userType: "seller" };
+    //   const result = await userCollection.find(query).toArray();
+    //   res.send(result);
+    // });
 
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
